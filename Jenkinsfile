@@ -11,12 +11,23 @@ pipeline {
                 }
                 steps {
                     sh '''
+                        echo "my build stage"
                         ls -la
                         node --version
                         npm --version
                         npm ci
                         npm run build
                         ls -la
+                    '''
+                }
+            }
+
+            stage('Test') {
+                steps {
+                    sh'''
+                        echo "my test stage"
+                        test -f build/index.html
+                        npm test -a
                     '''
                 }
             }
