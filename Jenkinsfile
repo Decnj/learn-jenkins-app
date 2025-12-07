@@ -41,12 +41,14 @@ pipeline {
             agent {
                 docker{
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    // args '-u root'
                     reuseNode true
                 }
             }
 
             steps {
                 sh '''
+                    whoami
                     npm install -g serve
                     serve -s build
                     npx playwright test
