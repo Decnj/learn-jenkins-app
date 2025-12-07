@@ -42,10 +42,6 @@ pipeline {
         always {
             // Publish JUnit test results
             junit 'test-results/junit.xml'
-            // Send email notification
-            mail to: 'nnamdi.njemanze18@gmail.com'
-                 subject: "Pipeline Result"
-                 body: "The Pipeline just finished, check results!"
         }
     }
 }
