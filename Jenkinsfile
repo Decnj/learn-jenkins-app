@@ -10,6 +10,7 @@ pipeline {
                 }
             }
             steps {
+                cleanWS()
                 sh '''
                     ls -la
                     node --version
@@ -25,6 +26,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    reuseNode true
                 }
             }
 
