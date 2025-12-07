@@ -22,9 +22,15 @@ pipeline {
         }
 
         stage('Test') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                }
+            }
+
             steps {
                 sh '''
-                    find ./build/ -type f -name "index.html" 
+                    test -f build/index.html
                     npm test
                 '''
             }
