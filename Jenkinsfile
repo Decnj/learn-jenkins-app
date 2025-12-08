@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        /*stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -20,7 +20,7 @@ pipeline {
                 '''
             }
         }
-    
+        */
         stage('Test') {
             agent {
                 docker {
@@ -51,7 +51,7 @@ pipeline {
                     npm install serve
                     node_modules/.bin/serve -s build &
                     sleep 10
-                    npx playwright test
+                    npx playwright test --reporter=html
                 '''
             }
         }
@@ -60,7 +60,7 @@ pipeline {
     post {
         always {
             // Publish JUnit test results
-            junit 'test-results/junit.xml'
+            junit 'jest-results/junit.xml'
         }
     }
 }
