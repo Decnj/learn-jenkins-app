@@ -67,12 +67,12 @@ pipeline {
                             npx playwright test --reporter=html
                         '''
                     }
-                    post {
-                        always {
-                            // Publish playwright test report
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Local Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
+                post {
+                    always {
+                        // Publish playwright test report
+                        publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Local Report', reportTitles: '', useWrapperFileDirectly: true])
                     }
+                }
                 }
             } 
         }
@@ -113,12 +113,12 @@ pipeline {
                 '''
             }
 
-            post {
-                always {
-                    // Publish playwright test
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
-                }
+        post {
+            always {
+            // Publish playwright test
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
             }
+        }
         }
     }
 }
