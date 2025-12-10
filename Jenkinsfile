@@ -115,7 +115,7 @@ pipeline {
 
             post {
                 always {
-                    // Publish prod playwright test
+                    // Publish playwright test
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
