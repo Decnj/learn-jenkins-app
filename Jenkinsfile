@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        /*stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -25,7 +25,7 @@ pipeline {
                 '''
             }
         }
-        */
+    
         stage('Test') {
             parallel {
                 stage('Unit Test') {
@@ -70,7 +70,7 @@ pipeline {
                     post {
                         always {
                             // Publish playwright test report
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Local Report', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
                 }
@@ -92,6 +92,32 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
                 '''
+            }
+        }
+
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+
+            environment {
+                CI_ENVIRONMENT_URL = 'https://thunderous-pegasus-03ae90.netlify.app'
+            }
+
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+            }
+
+            post {
+                always {
+                    // Publish prod playwright test
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
             }
         }
     }
