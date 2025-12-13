@@ -9,7 +9,9 @@ pipeline {
 
     stages {
         stage('Docker') {
-            sh 'docker build -t decnj/node-build .'
+            steps {
+                sh 'docker build -t decnj/node-build .'
+            }
         }
 
         stage('Build') {
