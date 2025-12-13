@@ -8,6 +8,10 @@ pipeline {
     }
 
     stages {
+        stage('Docker') {
+            sh 'docker build -t decnj/node-build .'
+        }
+
         stage('Build') {
             agent {
                 docker {
@@ -81,7 +85,7 @@ pipeline {
         stage('Deploy staging') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'decnj/node-build'
                     reuseNode true
                 }
             }
@@ -92,12 +96,11 @@ pipeline {
 
             steps {
                 sh '''
-                    npm install netlify-cli@20.1.1 node-jq
-                    node_modules/.bin/netlify --version
+                    netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-url.json
-                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-url.json)
+                    netlify status
+                    netlify deploy --dir=build --json > deploy-url.json
+                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-url.json)
                     npx playwright test --reporter=html
                 '''
             }
