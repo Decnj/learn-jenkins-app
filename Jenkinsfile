@@ -8,12 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('Docker') {
-            steps {
-                sh 'docker build -t decnj/node-build .'
-            }
-        }
-
         stage('Build') {
             agent {
                 docker {
