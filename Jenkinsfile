@@ -12,13 +12,13 @@ pipeline {
             agent {
                 docker {
                     image 'amazon/aws-cli'
-                    args "--entrypoint=''"
+                    args '--entrypoint=""'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
-                    aws --version
+                    aws -v
                 '''
             } 
         }
