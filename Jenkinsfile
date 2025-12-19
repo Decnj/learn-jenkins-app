@@ -13,10 +13,11 @@ pipeline {
             agent {
                 docker {
                     image 'amazon/aws-cli'
-                    args '--entrypoint bin/sh'
+                    args '-u root --entrypoint /bin/sh'
                     reuseNode true
                 }
             }
+
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-s3', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
