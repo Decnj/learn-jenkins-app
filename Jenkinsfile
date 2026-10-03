@@ -30,9 +30,9 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            archiveArtifacts artifacts: 'Workspace/**'
-        }
-    }
+    // post {
+    //     success {
+    //         archiveArtifacts artifacts: 'Workspace/**'
+    //     }
+    // }
 }
