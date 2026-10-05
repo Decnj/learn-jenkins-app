@@ -29,7 +29,6 @@ pipeline {
                 steps {
                     sh '''
                         npm test
-                        test -d build
                         test -f build/index.html
                     '''
                 }
