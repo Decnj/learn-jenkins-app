@@ -29,7 +29,7 @@ pipeline {
                 steps {
                     sh '''
                         npm test
-                        find . -type d -name 'build'  
+                        find . -type d build  
                         find . -type f build/index.html
                         test -d build
                         test -f build/index.html
