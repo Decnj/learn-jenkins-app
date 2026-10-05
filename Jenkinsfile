@@ -1,38 +1,37 @@
 pipeline {
-    agent any
+    agent any {
 
-    stages {
-        stage('W/o Docker') {
-            steps {
-                cleanWs()
-                sh '''
+        stages {
+            stage('Build') {
+                agent {
+                    docker {
+                        image 'node:18-alpine'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    node --version
+                    npm --version
+                    npm ci
                     ls -la
-                    touch test.txt
-                    ls -la
-                '''
-            }
-        }
-
-        stage('With Docker') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
                 }
             }
-            steps {
-                sh '''
-                    ls -la
-                    touch test2.txt
-                    ls -la
-                '''
+
+            stage('Test') {
+                agent {
+                    docker {
+                        image 'node:18-alpine'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    sh '''
+                        npm test
+                        find . -type d -name 'build'  
+                        find . -type f -name '*.html'
+                    '''
+                }
             }
         }
     }
-
-    // post {
-    //     success {
-    //         archiveArtifacts artifacts: 'Workspace/**'
-    //     }
-    // }
 }
