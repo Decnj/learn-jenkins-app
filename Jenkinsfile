@@ -30,7 +30,9 @@ pipeline {
                     sh '''
                         npm test
                         find . -type d -name 'build'  
-                        find . -type f -name '*.html'
+                        find . -type f build/index.html
+                        test -d build
+                        test -f build/index.html
                     '''
                 }
             }
