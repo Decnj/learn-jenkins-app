@@ -2,30 +2,29 @@ pipeline {
     agent any 
 
         stages {
-            stage('Build') {
-                agent {
-                    docker {
-                        image 'node:22-alpine'
-                        args '-v $HOME/.npm:/root/.npm'
-                        reuseNode true
-                    }
-                }
-                steps {
-                    sh '''
-                        node --version
-                        npm --version
-                        npm ci
-                        npm run build
-                        ls -la
-                        ls -la $HOME/.npm
-                    '''
-                }
-            }
+            // stage('Build') {
+            //     agent {
+            //         docker {
+            //             image 'node:22-alpine'
+            //             args '-v $HOME/.npm:/root/.npm'
+            //             reuseNode true
+            //         }
+            //     }
+            //     steps {
+            //         sh '''
+            //             node --version
+            //             npm --version
+            //             npm ci
+            //             npm run build
+            //             ls -la
+            //         '''
+            //     }
+            // }
 
             stage('Unit Test') {
                 agent {
                     docker {
-                        image 'node:18-alpine'
+                        image 'node:22-alpine'
                         reuseNode true
                     }
                 }
@@ -38,7 +37,7 @@ pipeline {
             stage('E2E') {
                 agent {
                     docker {
-                        image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
                         reuseNode true
                     }
                 }
