@@ -70,6 +70,22 @@ pipeline {
                     }
                 }
             }
+
+            stage('Deploy') {
+                agent {
+                    docker {
+                        image 'node:22-alpine'
+                        args '-v $HOME/.npm:/root/.npm'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    sh '''
+                        npm install netlify-cli
+                        npx netlify --version
+                    '''
+                }
+            }
         }
         
 }
