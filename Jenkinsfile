@@ -44,9 +44,9 @@ pipeline {
                     sh '''
                         npm install serve
                         node_modules/.bin/serve --version 
-                        ls -la /usr/local/lib/node_modules/serve/node_modules 
                         npx serve --version
                         npx serve -s build &
+                        ls -la node_modules/serve/node_modules 
                         sleep 15
                         npx playwright test  
                     '''
