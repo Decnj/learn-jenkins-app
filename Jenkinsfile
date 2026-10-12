@@ -16,6 +16,7 @@ pipeline {
                         npm ci
                         npm run build
                         ls -la
+                        ls -la $HOME
                         ls -la /var/jenkins_home 
                         ls -la /var/jenkins_home/workspace
                         ls -la /var/jenkins_home/.npm
