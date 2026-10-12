@@ -21,46 +21,55 @@ pipeline {
             //     }
             // }
 
-            stage('Unit Test') {
-                agent {
-                    docker {
-                        image 'node:22-alpine'
-                        reuseNode true
+            stage('Test') {
+                parallel {
+                    stage('Unit Test') {
+                        agent {
+                            docker {
+                                image 'node:22-alpine'
+                                reuseNode true
+                            }
+                        }
+                        steps {
+                            sh '''
+                                npm test
+                            '''
+                        }
+                        post {
+                            always {
+                                junit 'jest-results/junit.xml'
+                            }
+                        }
                     }
-                }
-                steps {
-                    sh '''
-                        npm test
-                    '''
-                }
-            }
-            stage('E2E') {
-                agent {
-                    docker {
-                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
-                        args '-v $HOME/.npm:/root/.npm'
-                        reuseNode true
+                    
+                    stage('E2E') {
+                        agent {
+                            docker {
+                                image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                                args '-v $HOME/.npm:/root/.npm'
+                                reuseNode true
+                            }
+                        }
+                        steps {
+                            sh '''
+                                node --version 
+                                npm --version
+                                npm install serve
+                                node_modules/.bin/serve --version 
+                                npx serve --version
+                                npx serve -s build &
+                                sleep 15
+                                npx playwright test --reporter=html 
+                            '''
+                        }
+                        post {
+                            always {
+                                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                            }
+                        }
                     }
-                }
-                steps {
-                    sh '''
-                        node --version 
-                        npm --version
-                        npm install serve
-                        node_modules/.bin/serve --version 
-                        npx serve --version
-                        npx serve -s build &
-                        sleep 15
-                        npx playwright test --reporter=html 
-                    '''
                 }
             }
         }
-
-        post {
-            always {
-                junit 'jest-results/junit.xml'
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-            }
-        }
+        
 }
