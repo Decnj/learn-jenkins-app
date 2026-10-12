@@ -5,7 +5,8 @@ pipeline {
             stage('Build') {
                 agent {
                     docker {
-                        image 'node:18-alpine'
+                        image 'node:22-alpine'
+                        arg '-v $HOME/.npm:/root/.npm'
                         reuseNode true
                     }
                 }
@@ -16,10 +17,7 @@ pipeline {
                         npm ci
                         npm run build
                         ls -la
-                        ls -la $HOME
-                        ls -la /var/jenkins_home 
-                        ls -la /var/jenkins_home/workspace
-                        ls -la /var/jenkins_home/.npm
+                        ls -la $HOME/.npm
                     '''
                 }
             }
