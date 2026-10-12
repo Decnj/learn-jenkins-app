@@ -50,7 +50,6 @@ pipeline {
                         node_modules/.bin/serve --version 
                         npx serve --version
                         npx serve -s build &
-                        ls -la node_modules/serve/node_modules 
                         sleep 15
                         npx playwright test --reporter=html 
                     '''
