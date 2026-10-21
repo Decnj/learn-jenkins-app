@@ -18,7 +18,7 @@ pipeline {
             //         sh '''
             //             node --version
             //             npm --version
-            //             npm ci
+            //             npm ci --no-fund --no-audit --prefer-offline
             //             npm run build
             //             ls -la
             //         '''
@@ -85,7 +85,7 @@ pipeline {
                 }
                 steps {
                     sh '''
-                        npm install netlify-cli@20.1.1
+                        npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
                         npx netlify --version
                     '''
                 }
