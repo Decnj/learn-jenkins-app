@@ -59,7 +59,7 @@ pipeline {
                             sh '''
                                 node --version 
                                 npm --version
-                                npm install serve
+                                npm install serve --no-fund --no-audit --prefer-offline
                                 node_modules/.bin/serve --version 
                                 npx serve --version
                                 npx serve -s build &
