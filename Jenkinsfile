@@ -89,6 +89,7 @@ pipeline {
                         npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
                         npx netlify --version
                         npx netlify status
+                        npx netlify deploy --dir=build --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
                     '''
                 }
             }
