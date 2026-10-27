@@ -69,12 +69,13 @@ pipeline {
                         }
                         post {
                             always {
-                                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright local', reportTitles: '', useWrapperFileDirectly: true])
                             }
                         }
                     }
                 }
             }
+                    
 
             stage('Deploy') {
                 agent {
@@ -91,6 +92,30 @@ pipeline {
                         npx netlify status
                         npx netlify deploy --dir=build --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
                     '''
+                }
+            }
+
+            stage('Prod E2E') {
+                agent {
+                    docker {
+                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                        args '-v $HOME/.npm:/root/.npm'
+                        reuseNode true
+                    }
+                }
+
+                environment {
+                    CI_ENVIRONMENT_URL = credentials('netlify-prod-url')
+                }
+                steps {
+                    sh '''
+                        npx playwright test --reporter=html 
+                    '''
+                }
+                post {
+                    always {
+                        publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
+                    }
                 }
             }
         }
