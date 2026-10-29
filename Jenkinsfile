@@ -77,7 +77,7 @@ pipeline {
             }
                     
 
-            stage('Deploy') {
+            stage('Deploy Staging') {
                 agent {
                     docker {
                         image 'node:22-alpine'
@@ -90,7 +90,27 @@ pipeline {
                         npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
                         npx netlify --version
                         npx netlify status
-                        npx netlify deploy --dir=build --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+                        echo "Deploying to staging..."
+                        npx netlify deploy --dir=build
+                    '''
+                }
+            }
+
+            stage('Deploy Prod') {
+                agent {
+                    docker {
+                        image 'node:22-alpine'
+                        args '-v $HOME/.npm:/root/.npm'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    sh '''
+                        npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
+                        npx netlify --version
+                        npx netlify status
+                        echo "Deploying to production..."
+                        npx netlify deploy --dir=build --prod 
                     '''
                 }
             }
