@@ -98,7 +98,9 @@ pipeline {
 
             stage('Approval') {
                 steps {
-                    input cancel: 'Review', message: 'Approve deployment to production?', ok: 'Deploy!!!'
+                    timeout(time: 10, unit: 'MINUTES') {
+                        input cancel: 'Review', message: 'Approve deployment to production?', ok: 'Deploy!!!'
+                    }
                 }
             }
 
