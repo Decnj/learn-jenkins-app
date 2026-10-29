@@ -76,7 +76,6 @@ pipeline {
                 }
             }
                     
-
             stage('Deploy Staging') {
                 agent {
                     docker {
@@ -87,12 +86,39 @@ pipeline {
                 }
                 steps {
                     sh '''
-                        npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
+                        npm install netlify-cli@20.1.1 node-jq --no-fund --no-audit --prefer-offline
                         npx netlify --version
                         npx netlify status
                         echo "Deploying to staging..."
-                        npx netlify deploy --dir=build
+                        npx netlify deploy --dir=build --json > netlify-deploy.json
                     '''
+                    script {
+                        env.CI_ENVIRONMENT_URL = sh(
+                            script: "npx node-jq -r '.deploy_url' netlify-deploy.json", 
+                            returnStdout: true
+                            ).trim()
+                    }
+                }
+            }
+            
+            stage('Staging E2E') {
+                agent {
+                    docker {
+                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                        args '-v $HOME/.npm:/root/.npm'
+                        reuseNode true
+                    }
+                }
+
+                steps {
+                    sh '''
+                        npx playwright test --reporter=html 
+                    '''
+                }
+                post {
+                    always {
+                        publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Staging', reportTitles: '', useWrapperFileDirectly: true])
+                    }
                 }
             }
 
