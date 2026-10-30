@@ -84,7 +84,7 @@ pipeline {
                         reuseNode true
                     }
                 }
-                environmenent {
+                environment {
                     CI_ENVIRONMENT_URL = ''
                 }
                 steps {
@@ -96,7 +96,6 @@ pipeline {
                         npx netlify status
                         echo "Deploying to staging..."
                         npx netlify deploy --dir=build --json > netlify-deploy.json
-                        npx playwright test --reporter=html
                     '''
                     script {
                         env.CI_ENVIRONMENT_URL = sh(
@@ -104,6 +103,9 @@ pipeline {
                             returnStdout: true
                             ).trim()
                     }
+                    sh '''
+                        npx playwright test --reporter=html
+                    '''
                 }
                 post {
                     always {
