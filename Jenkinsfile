@@ -96,16 +96,15 @@ pipeline {
                         npx netlify status
                         echo "Deploying to staging..."
                         npx netlify deploy --dir=build --json > netlify-deploy.json
-                    '''
-                    script {
-                        env.CI_ENVIRONMENT_URL = sh(
-                            script: "npx node-jq -r '.deploy_url' netlify-deploy.json", 
-                            returnStdout: true
-                            ).trim()
-                    }
-                    sh '''
+                        CI_ENVIRONMENT_URL=$(npx node-jq -r '.deploy_url' netlify-deploy.json)
                         npx playwright test --reporter=html
                     '''
+                    // script {
+                    //     env.CI_ENVIRONMENT_URL = sh(
+                    //         script: "npx node-jq -r '.deploy_url' netlify-deploy.json", 
+                    //         returnStdout: true
+                    //         ).trim()
+                    // }
                 }
                 post {
                     always {
