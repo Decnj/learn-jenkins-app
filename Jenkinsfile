@@ -79,18 +79,24 @@ pipeline {
             stage('Deploy Staging') {
                 agent {
                     docker {
-                        image 'node:22-alpine'
+                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
                         args '-v $HOME/.npm:/root/.npm'
                         reuseNode true
                     }
                 }
+                environmenent {
+                    CI_ENVIRONMENT_URL = ''
+                }
                 steps {
                     sh '''
+                        node --version
+                        npm --version
                         npm install netlify-cli@20.1.1 node-jq --no-fund --no-audit --prefer-offline
                         npx netlify --version
                         npx netlify status
                         echo "Deploying to staging..."
                         npx netlify deploy --dir=build --json > netlify-deploy.json
+                        npx playwright test --reporter=html
                     '''
                     script {
                         env.CI_ENVIRONMENT_URL = sh(
@@ -98,22 +104,6 @@ pipeline {
                             returnStdout: true
                             ).trim()
                     }
-                }
-            }
-            
-            stage('Staging E2E') {
-                agent {
-                    docker {
-                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
-                        args '-v $HOME/.npm:/root/.npm'
-                        reuseNode true
-                    }
-                }
-
-                steps {
-                    sh '''
-                        npx playwright test --reporter=html 
-                    '''
                 }
                 post {
                     always {
@@ -133,10 +123,13 @@ pipeline {
             stage('Deploy Prod') {
                 agent {
                     docker {
-                        image 'node:22-alpine'
+                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
                         args '-v $HOME/.npm:/root/.npm'
                         reuseNode true
                     }
+                }
+                environment {
+                    CI_ENVIRONMENT_URL = credentials('netlify-prod-url')
                 }
                 steps {
                     sh '''
@@ -145,25 +138,8 @@ pipeline {
                         npx netlify status
                         echo "Deploying to production..."
                         npx netlify deploy --dir=build --prod 
-                    '''
-                }
-            }
-
-            stage('Prod E2E') {
-                agent {
-                    docker {
-                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
-                        args '-v $HOME/.npm:/root/.npm'
-                        reuseNode true
-                    }
-                }
-
-                environment {
-                    CI_ENVIRONMENT_URL = credentials('netlify-prod-url')
-                }
-                steps {
-                    sh '''
-                        npx playwright test --reporter=html 
+                        sleep 10
+                        npx playwright test --reporter=html
                     '''
                 }
                 post {
