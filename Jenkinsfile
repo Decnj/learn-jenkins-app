@@ -4,27 +4,28 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = credentials('netlify-site-id')
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        REACT_APP_VERSION = "1.$BUILD_ID.1"
     }
 
         stages {
-            // stage('Build') {
-            //     agent {
-            //         docker {
-            //             image 'node:22-alpine'
-            //             args '-v $HOME/.npm:/root/.npm'
-            //             reuseNode true
-            //         }
-            //     }
-            //     steps {
-            //         sh '''
-            //             node --version
-            //             npm --version
-            //             npm ci --no-fund --no-audit --prefer-offline
-            //             npm run build
-            //             ls -la
-            //         '''
-            //     }
-            // }
+            stage('Build') {
+                agent {
+                    docker {
+                        image 'node:22-alpine'
+                        args '-v $HOME/.npm:/root/.npm'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    sh '''
+                        node --version
+                        npm --version
+                        npm ci --no-fund --no-audit --prefer-offline
+                        npm run build
+                        ls -la
+                    '''
+                }
+            }
 
             stage('Test') {
                 parallel {
@@ -113,13 +114,13 @@ pipeline {
                 }
             }
 
-            stage('Approval') {
-                steps {
-                    timeout(time: 10, unit: 'MINUTES') {
-                        input cancel: 'Review', message: 'Approve deployment to production?', ok: 'Deploy!!!'
-                    }
-                }
-            }
+            // stage('Approval') {
+            //     steps {
+            //         timeout(time: 10, unit: 'MINUTES') {
+            //             input cancel: 'Review', message: 'Approve deployment to production?', ok: 'Deploy!!!'
+            //         }
+            //     }
+            // }
 
             stage('Deploy Prod') {
                 agent {
