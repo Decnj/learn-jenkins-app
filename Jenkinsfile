@@ -8,6 +8,14 @@ pipeline {
     }
 
         stages {
+
+            stage('Docker Build') {
+                steps {
+                    sh '''
+                        docker build -t my-playwright .
+                    '''
+                }
+            }
             stage('Build') {
                 agent {
                     docker {
@@ -51,7 +59,7 @@ pipeline {
                     stage('E2E') {
                         agent {
                             docker {
-                                image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                                image 'my-playwright'
                                 args '-v $HOME/.npm:/root/.npm'
                                 reuseNode true
                             }
@@ -60,12 +68,10 @@ pipeline {
                             sh '''
                                 node --version 
                                 npm --version
-                                npm install serve --no-fund --no-audit --prefer-offline
-                                node_modules/.bin/serve --version 
-                                npx serve --version
-                                npx serve -s build &
+                                serve --version
+                                serve -s build &
                                 sleep 15
-                                npx playwright test --reporter=html 
+                                playwright test --reporter=html 
                             '''
                         }
                         post {
@@ -80,7 +86,7 @@ pipeline {
             stage('Deploy Staging') {
                 agent {
                     docker {
-                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                        image 'my-playwright'
                         args '-v $HOME/.npm:/root/.npm'
                         reuseNode true
                     }
@@ -92,13 +98,12 @@ pipeline {
                     sh '''
                         node --version
                         npm --version
-                        npm install netlify-cli@20.1.1 node-jq --no-fund --no-audit --prefer-offline
-                        npx netlify --version
-                        npx netlify status
+                        netlify --version
+                        netlify status
                         echo "Deploying to staging..."
-                        npx netlify deploy --dir=build --json > netlify-deploy.json
-                        CI_ENVIRONMENT_URL=$(npx node-jq -r '.deploy_url' netlify-deploy.json)
-                        npx playwright test --reporter=html
+                        netlify deploy --dir=build --json > netlify-deploy.json
+                        CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' netlify-deploy.json)
+                        playwright test --reporter=html
                     '''
                     // script {
                     //     env.CI_ENVIRONMENT_URL = sh(
@@ -125,7 +130,7 @@ pipeline {
             stage('Deploy Prod') {
                 agent {
                     docker {
-                        image 'mcr.microsoft.com/playwright:v1.63.0-jammy'
+                        image 'my-playwright'
                         args '-v $HOME/.npm:/root/.npm'
                         reuseNode true
                     }
@@ -135,13 +140,12 @@ pipeline {
                 }
                 steps {
                     sh '''
-                        npm install netlify-cli@20.1.1 --no-fund --no-audit --prefer-offline
-                        npx netlify --version
-                        npx netlify status
+                        netlify --version
+                        netlify status
                         echo "Deploying to production..."
-                        npx netlify deploy --dir=build --prod 
+                        netlify deploy --dir=build --prod 
                         sleep 10
-                        npx playwright test --reporter=html
+                        playwright test --reporter=html
                     '''
                 }
                 post {
