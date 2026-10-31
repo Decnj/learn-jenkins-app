@@ -4,7 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = credentials('netlify-site-id')
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        REACT_APP_VERSION = "1.$BUILD_ID.1"
+        REACT_APP_VERSION = '${BUILD_NUMBER}'
     }
 
         stages {
@@ -86,7 +86,7 @@ pipeline {
                     }
                 }
                 environment {
-                    CI_ENVIRONMENT_URL = 'STAGING_URL'
+                    CI_ENVIRONMENT_URL = 'SET_STAGING_URL'
                 }
                 steps {
                     sh '''
