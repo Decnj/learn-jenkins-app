@@ -12,6 +12,7 @@ pipeline {
                 agent {
                     docker {
                         image 'amazon/aws-cli:2.15.0'
+                        args '--endpoint=""'
                         reuseNode true
                     }
                 }
@@ -21,6 +22,7 @@ pipeline {
                     '''
                 }
             }
+
             stage('Docker Build') {
                 steps {
                     sh '''
@@ -28,6 +30,7 @@ pipeline {
                     '''
                 }
             }
+
             stage('Build') {
                 agent {
                     docker {
