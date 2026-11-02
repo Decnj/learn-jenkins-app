@@ -8,7 +8,19 @@ pipeline {
     }
 
         stages {
-
+            stage('AWS CLI') {
+                agent {
+                    docker {
+                        image 'amazon/aws-cli:2.15.0'
+                        reuseNode true
+                    }
+                }
+                steps {
+                    sh '''
+                        aws --version
+                    '''
+                }
+            }
             stage('Docker Build') {
                 steps {
                     sh '''
