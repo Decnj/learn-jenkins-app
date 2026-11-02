@@ -145,7 +145,7 @@ pipeline {
                         echo "Deploying to production..."
                         netlify deploy --dir=build --prod 
                         sleep 10
-                        playwright test --reporter=html
+                        npx playwright test --reporter=html
                     '''
                 }
                 post {
