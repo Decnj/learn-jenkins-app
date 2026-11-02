@@ -71,7 +71,7 @@ pipeline {
                                 serve --version
                                 serve -s build &
                                 sleep 15
-                                playwright test --reporter=html 
+                                npx playwright test --reporter=html 
                             '''
                         }
                         post {
@@ -103,7 +103,7 @@ pipeline {
                         echo "Deploying to staging..."
                         netlify deploy --dir=build --json > netlify-deploy.json
                         CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' netlify-deploy.json)
-                        playwright test --reporter=html
+                        npx playwright test --reporter=html
                     '''
                     // script {
                     //     env.CI_ENVIRONMENT_URL = sh(
