@@ -102,7 +102,7 @@ pipeline {
                         netlify status
                         echo "Deploying to staging..."
                         netlify deploy --dir=build --json > netlify-deploy.json
-                        CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' netlify-deploy.json)
+                        CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' netlify-deploy.json)
                         npx playwright test --reporter=html
                     '''
                     // script {
