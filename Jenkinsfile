@@ -5,6 +5,8 @@ pipeline {
         NETLIFY_SITE_ID = credentials('netlify-site-id')
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
         REACT_APP_VERSION = "1.0.$BUILD_ID"
+        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_CRED = credentials('aws-S3')
     }
 
     stages {
@@ -19,6 +21,10 @@ pipeline {
             steps {
                 sh '''
                     aws --version
+                    aws configure list
+                    export AWS_ACCESS_KEY_ID=${AWS_CRED_USR}
+                    export AWS_SECRET_ACCESS_KEY=${AWS_CRED_PSW}
+                    aws sts get-caller-identity
                 '''
             }
         }
