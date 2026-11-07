@@ -2,34 +2,36 @@ pipeline {
     agent any 
 
     environment {
-        NETLIFY_SITE_ID = credentials('netlify-site-id')
-        NETLIFY_AUTH_TOKEN = credentials('netlify-token')
-        REACT_APP_VERSION = "1.0.$BUILD_ID"
+        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_S3_BUCKET = 'learn-jenkins-app'
+        // NETLIFY_SITE_ID = credentials('netlify-site-id')
+        // NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        // REACT_APP_VERSION = "1.0.$BUILD_ID"
     }
 
     stages {
         
-        stage('AWS CLI') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
-                }
-            }
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'aws-s3-credentials', 
-                    passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
-                    usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
-                    {
-                    sh '''
-                        aws --version
-                        aws configure list
-                        aws sts get-caller-identity
-                    '''
-                    }
-            }
-        }
+        // stage('AWS CLI') {
+        //     agent {
+        //         docker {
+        //             image 'amazon/aws-cli'
+        //             args "--entrypoint=''"
+        //         }
+        //     }
+        //     steps {
+        //         withCredentials([usernamePassword(
+        //             credentialsId: 'aws-s3-credentials', 
+        //             passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+        //             usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+        //             {
+        //             sh '''
+        //                 aws --version
+        //                 aws configure list
+        //                 aws sts get-caller-identity
+        //             '''
+        //             }
+        //     }
+        // }
 
         stage('Docker Build') {
             steps {
@@ -105,42 +107,64 @@ pipeline {
                 }
             }
         }
-                
-        stage('Deploy Staging') {
+
+        stage('Deploy S3') {
             agent {
                 docker {
                     image 'my-playwright'
-                    args '-v $HOME/.npm:/root/.npm'
+                    args "--entrypoint=''"
                     reuseNode true
                 }
             }
-            environment {
-                CI_ENVIRONMENT_URL = 'SET_STAGING_URL'
-            }
             steps {
-                sh '''
-                    node --version
-                    npm --version
-                    netlify --version
-                    netlify status
-                    echo "Deploying to staging..."
-                    netlify deploy --dir=build --json > netlify-deploy.json
-                    CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' netlify-deploy.json)
-                    npx playwright test --reporter=html
-                '''
-                // script {
-                //     env.CI_ENVIRONMENT_URL = sh(
-                //         script: "npx node-jq -r '.deploy_url' netlify-deploy.json", 
-                //         returnStdout: true
-                //         ).trim()
-                // }
-            }
-            post {
-                always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Staging', reportTitles: '', useWrapperFileDirectly: true])
-                }
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-s3-credentials', 
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
+                    usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+                    {
+                    sh '''
+                        aws s3api --version
+                        aws s3 sync build/ s3://learn-jenkins-app --delete
+                    '''
+                    }
             }
         }
+                
+        // stage('Deploy Staging') {
+        //     agent {
+        //         docker {
+        //             image 'my-playwright'
+        //             args '-v $HOME/.npm:/root/.npm'
+        //             reuseNode true
+        //         }
+        //     }
+        //     environment {
+        //         CI_ENVIRONMENT_URL = 'SET_STAGING_URL'
+        //     }
+        //     steps {
+        //         sh '''
+        //             node --version
+        //             npm --version
+        //             netlify --version
+        //             netlify status
+        //             echo "Deploying to staging..."
+        //             netlify deploy --dir=build --json > netlify-deploy.json
+        //             CI_ENVIRONMENT_URL=$(jq -r '.deploy_url' netlify-deploy.json)
+        //             npx playwright test --reporter=html
+        //         '''
+        //         // script {
+        //         //     env.CI_ENVIRONMENT_URL = sh(
+        //         //         script: "npx node-jq -r '.deploy_url' netlify-deploy.json", 
+        //         //         returnStdout: true
+        //         //         ).trim()
+        //         // }
+        //     }
+        //     post {
+        //         always {
+        //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Staging', reportTitles: '', useWrapperFileDirectly: true])
+        //         }
+        //     }
+        // }
 
         // stage('Approval') {
         //     steps {
@@ -150,32 +174,32 @@ pipeline {
         //     }
         // }
 
-        stage('Deploy Prod') {
-            agent {
-                docker {
-                    image 'my-playwright'
-                    args '-v $HOME/.npm:/root/.npm'
-                    reuseNode true
-                }
-            }
-            environment {
-                CI_ENVIRONMENT_URL = credentials('netlify-prod-url')
-            }
-            steps {
-                sh '''
-                    netlify --version
-                    netlify status
-                    echo "Deploying to production..."
-                    netlify deploy --dir=build --prod 
-                    sleep 10
-                    npx playwright test --reporter=html
-                '''
-            }
-            post {
-                always {
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
-                }
-            }
-        }
+        // stage('Deploy Prod') {
+        //     agent {
+        //         docker {
+        //             image 'my-playwright'
+        //             args '-v $HOME/.npm:/root/.npm'
+        //             reuseNode true
+        //         }
+        //     }
+        //     environment {
+        //         CI_ENVIRONMENT_URL = credentials('netlify-prod-url')
+        //     }
+        //     steps {
+        //         sh '''
+        //             netlify --version
+        //             netlify status
+        //             echo "Deploying to production..."
+        //             netlify deploy --dir=build --prod 
+        //             sleep 10
+        //             npx playwright test --reporter=html
+        //         '''
+        //     }
+        //     post {
+        //         always {
+        //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
+        //         }
+        //     }
+        // }
     }
 }
