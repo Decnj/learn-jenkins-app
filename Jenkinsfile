@@ -123,8 +123,8 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
                     {
                     sh '''
-                        aws s3api --version
-                        aws s3 sync build/ s3://learn-jenkins-app --delete
+                        aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION || true
+                        aws s3 sync build/ s3://learn-jenkins-app 
                     '''
                     }
             }
