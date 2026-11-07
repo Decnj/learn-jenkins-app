@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
-        AWS_S3_BUCKET = 'learn-jenkins-app'
+        AWS_S3_BUCKET = 'learn-jenkins-dec0204'
         REACT_APP_VERSION = "1.0.$BUILD_ID"
         // NETLIFY_SITE_ID = credentials('netlify-site-id')
         // NETLIFY_AUTH_TOKEN = credentials('netlify-token')
@@ -123,8 +123,8 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
                     {
                     sh '''
-                        aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION || true
-                        aws s3 sync build/ s3://learn-jenkins-app 
+                        aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION
+                        aws s3 sync build/ s3://$AWS_S3_BUCKET --delete
                     '''
                     }
             }
