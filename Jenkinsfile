@@ -123,7 +123,7 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
                     {
                     sh '''
-                        aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION
+                     ## aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION
                         aws s3 sync build/ s3://$AWS_S3_BUCKET --delete
                     '''
                     }
