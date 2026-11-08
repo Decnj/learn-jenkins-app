@@ -2,8 +2,6 @@ pipeline {
     agent any 
 
     environment {
-        AWS_DEFAULT_REGION = 'us-east-1'
-        AWS_S3_BUCKET = 'learn-jenkins-dec0204'
         REACT_APP_VERSION = "1.0.$BUILD_ID"
         // NETLIFY_SITE_ID = credentials('netlify-site-id')
         // NETLIFY_AUTH_TOKEN = credentials('netlify-token')
@@ -11,28 +9,6 @@ pipeline {
 
     stages {
         
-        // stage('AWS CLI') {
-        //     agent {
-        //         docker {
-        //             image 'amazon/aws-cli'
-        //             args "--entrypoint=''"
-        //         }
-        //     }
-        //     steps {
-        //         withCredentials([usernamePassword(
-        //             credentialsId: 'aws-s3-credentials', 
-        //             passwordVariable: 'AWS_SECRET_ACCESS_KEY', 
-        //             usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
-        //             {
-        //             sh '''
-        //                 aws --version
-        //                 aws configure list
-        //                 aws sts get-caller-identity
-        //             '''
-        //             }
-        //     }
-        // }
-
         stage('Docker Build') {
             steps {
                 sh '''
@@ -116,6 +92,11 @@ pipeline {
                     reuseNode true
                 }
             }
+            environment {
+                AWS_DEFAULT_REGION = 'us-east-1'
+                AWS_S3_BUCKET = 'learn-jenkins-dec0204'
+                CI_ENVIRONMENT_URL = "https://$AWS_S3_BUCKET.s3.$AWS_DEFAULT_REGION.amazonaws.com/index.html"
+            }
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'aws-s3-credentials', 
@@ -123,8 +104,9 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
                     {
                     sh '''
-                     ## aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION
+                      # aws s3api create-bucket --bucket $AWS_S3_BUCKET --region $AWS_DEFAULT_REGION
                         aws s3 sync build/ s3://$AWS_S3_BUCKET --delete
+                        npx playwright test --reporter=html
                     '''
                     }
             }
