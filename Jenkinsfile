@@ -110,6 +110,11 @@ pipeline {
                     '''
                     }
             }
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
         }
                 
         // stage('Deploy Staging') {
@@ -177,11 +182,11 @@ pipeline {
         //             npx playwright test --reporter=html
         //         '''
         //     }
-        //     post {
-        //         always {
-        //             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
-        //         }
-        //     }
+            // post {
+            //     always {
+            //         publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright Prod', reportTitles: '', useWrapperFileDirectly: true])
+            //     }
+            // }
         // }
     }
 }
