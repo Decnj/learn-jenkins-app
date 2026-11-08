@@ -95,7 +95,7 @@ pipeline {
             environment {
                 AWS_DEFAULT_REGION = 'us-east-1'
                 AWS_S3_BUCKET = 'learn-jenkins-dec0204'
-                CI_ENVIRONMENT_URL = "https://$AWS_S3_BUCKET.s3.$AWS_DEFAULT_REGION.amazonaws.com/index.html"
+                CI_ENVIRONMENT_URL = "https://${AWS_S3_BUCKET}.s3.${AWS_DEFAULT_REGION}.amazonaws.com/index.html"
             }
             steps {
                 withCredentials([usernamePassword(
